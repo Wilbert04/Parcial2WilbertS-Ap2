@@ -11,16 +11,16 @@ namespace SegundoParcial_AP.BLL
 {
     public class VentasBLL
     {
-        public static Ventas Buscar (int id)
+        public static Ventas Buscar(int id)
         {
-            Ventas ventas = new Ventas();
+            Ventas venta = new Ventas();
             Contexto contexto = new Contexto();
 
             try
             {
-                ventas = contexto.Ventas.Find(id);
+                venta = contexto.Ventas.Find(id);
             }
-            catch(Exception)
+            catch (Exception)
             {
                 throw;
             }
@@ -28,8 +28,7 @@ namespace SegundoParcial_AP.BLL
             {
                 contexto.Dispose();
             }
-            return ventas;
-
+            return venta;
         }
 
         public static List<Ventas> GetList(Expression<Func<Ventas, bool>> venta)
@@ -40,19 +39,16 @@ namespace SegundoParcial_AP.BLL
             try
             {
                 Lista = contexto.Ventas.Where(venta).ToList();
-
             }
             catch (Exception)
             {
                 throw;
-
             }
             finally
             {
                 contexto.Dispose();
             }
             return Lista;
-
         }
 
         public static async Task<List<CobrosDetalle>> GetVentasPendiente(int clienteId)
@@ -61,31 +57,7 @@ namespace SegundoParcial_AP.BLL
             Contexto contexto = new Contexto();
 
             var ventas = await contexto.Ventas
-                .Where(V => V.ClienteId == clienteId && V.Balance > 0)
-                .AsNoTracking()
-                .ToListAsync();
-
-            foreach(var item in ventas)
-            {
-                pendiente.Add(new CobrosDetalle
-                {
-                    VentaId = item.VentaId,
-                    Venta = item,
-                    Cobrado = 0
-
-                });
-            }
-
-            return pendiente;
-        }
-
-        public static async Task<List<CobrosDetalle>> GetVentasCobradas(int clienteId)
-        {
-            var pendiente = new List<CobrosDetalle>();
-            Contexto contexto = new Contexto();
-
-            var ventas = await contexto.Ventas
-                .Where(V => V.ClienteId == clienteId && V.Balance > 0)
+                .Where(v => v.ClienteId == clienteId && v.Balance > 0)
                 .AsNoTracking()
                 .ToListAsync();
 
@@ -96,11 +68,33 @@ namespace SegundoParcial_AP.BLL
                     VentaId = item.VentaId,
                     Venta = item,
                     Cobrado = 0
-
                 });
             }
 
             return pendiente;
+        }
+
+        public static async Task<List<CobrosDetalle>> GetVentasCobradas(int clienteId)
+        {
+            var pendientes = new List<CobrosDetalle>();
+            Contexto contexto = new Contexto();
+
+            var ventas = await contexto.Ventas
+                .Where(v => v.ClienteId == clienteId && v.Balance == 0)
+                .AsNoTracking()
+                .ToListAsync();
+
+            foreach (var item in ventas)
+            {
+                pendientes.Add(new CobrosDetalle
+                {
+                    VentaId = item.VentaId,
+                    Venta = item,
+                    Cobrado = 0
+                });
+            }
+
+            return pendientes;
         }
 
 

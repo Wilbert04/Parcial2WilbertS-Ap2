@@ -10,7 +10,7 @@ namespace SegundoParcial_AP.Models
     public class Clientes
     {
         [Key]
-        public int ClienteId { get; set; }
+        public int ClienteId  { get; set; }
         public string Nombres { get; set; }
 
         [ForeignKey("ClienteId")]
